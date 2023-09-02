@@ -104,4 +104,36 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     setClock('.timer', deadline);
+
+    //Modal
+
+    const btn = document.querySelectorAll('[data-modal]'),
+          modal = document.querySelector('.modal'),
+          close = document.querySelector('[data-close]');
+
+    btn.forEach( btn => {
+        btn.addEventListener('click', (event) => {
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden'; //стиль который запрещает прокрутку страницы, когда модальное окно открыто
+        });
+    })
+
+    function closeModal() { //вынесли в функцию код, который повторяется в коде больше одного раза don`t repeat yourself (dry)
+        modal.style.display = 'none';
+        document.body.style.overflow = ''; //браузер сам подставит дефoлтное значение
+    }
+
+    close.addEventListener('click', closeModal); //функцию не вызываем, пррсто передаем ссылку на функцию
+
+    modal.addEventListener('click', (e) => {
+        if(e.target === modal) { //если пользлватель кликает на подложку (за пределы модального окна, то окно закрывается), то есть если клик пользователя равно подложке modal, то окно скроется
+            closeModal();
+        }
+    });
+
+    document.addEventListener('keydown', (e) => { //закрытие модального окна при нажатии на esc
+        if (e.code === 'Escape' && modal.classList.contains('show')) { //если пользователь нажал на esc и модальное окно открыто
+            closeModal();
+        }
+    });
 });
