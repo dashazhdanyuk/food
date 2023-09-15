@@ -144,7 +144,7 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    /* const modalTimerId = setTimeout(openModal, 5000); */ //открывается модальное окно через 5 секунд перебывания пользователя на сайте
+    // const modalTimerId = setTimeout(openModal, 5000); //открывается модальное окно через 5 секунд перебывания пользователя на сайте */
 
     function showModalByScroll() { //функционал, который открывает модальное окно в случае прокрутки сайта до конца страницы 
         if (window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight - 1) { //если прокрученная часть + видимая часть на экране юзера = высоте всей прокрутки (смотреть таблицу в тетради) 
@@ -231,4 +231,47 @@ window.addEventListener('DOMContentLoaded', () => {
         '.menu .container',
         'menu__item'
     ).render();
+
+    //forms 
+
+    const forms = document.querySelectorAll('form');
+
+    const message = {
+        loading : 'Загрузка...',
+        success: 'Спасибо! Скоро мы с вами свяжемся',
+        failure: 'Что-то пошло не так...'
+    };
+
+    forms.forEach(item => {
+        postData(item);
+    });
+
+    function postData(form) {
+        form.addEventListener ('submit', (e) => {
+            e.preventDefault(); //эта окманда используется первой в аджакс запросах
+
+            const statusMessage = document.createElement('div');
+            statusMessage.classList.add('status');
+            statusMessage.textContent = message.loading;
+            form.append(statusMessage);
+
+            const request = new XMLHttpRequest();
+            request.open('POST', 'server.php'); //настроили запрос (он будет постить на сервер инфу и работат на фоне пхп файла)
+
+            request.setRequestHeader('Content-type', 'multipart/form-data');//заголовок запроса
+            const formData = new FormData(form); //взяли данные из HTML-формы и отправить их с помощью fetch или другого метода для работы с сетью.
+
+            request.send(formData);//отправили данные
+
+            request.addEventListener('load', () => {
+                //навешиваем лоад для отслеживания загрузки данных на сервер
+                if(request === 200) {
+                    console.log(request.response);
+                    statusMessage.textContent = message.success;
+                } else {
+                    statusMessage.textContent = message.failure;
+                }
+            })
+        })
+    }
 });
