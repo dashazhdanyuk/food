@@ -258,16 +258,27 @@ window.addEventListener('DOMContentLoaded', () => {
             const request = new XMLHttpRequest();
             request.open('POST', 'server.php'); //настроили запрос (он будет постить на сервер инфу и работат на фоне пхп файла)
 
-            request.setRequestHeader('Content-type', 'multipart/form-data');//заголовок запроса
+            request.setRequestHeader('Content-type', 'application/json');//заголовок запроса
             const formData = new FormData(form); //взяли данные из HTML-формы и отправить их с помощью fetch или другого метода для работы с сетью.
 
-            request.send(formData);//отправили данные
+            const object = {}; //FormData специфический объект поэтому надо сделать его обычным с помощью перебора значений 
+            formData.forEach(function(value, key){
+                object[key] = value;
+            });
+
+            const json = JSON.stringify(object);//превращаем обычный объект в json
+
+            request.send(json);//отправили данные
 
             request.addEventListener('load', () => {
                 //навешиваем лоад для отслеживания загрузки данных на сервер
-                if(request === 200) {
+                if(request.status === 200) {
                     console.log(request.response);
                     statusMessage.textContent = message.success;
+                    form.reset(); //очистили форму
+                    setTimeout(() => {
+                        statusMessage.remove();
+                    }, 2000)
                 } else {
                     statusMessage.textContent = message.failure;
                 }
