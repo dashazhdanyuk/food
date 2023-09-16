@@ -108,8 +108,7 @@ window.addEventListener('DOMContentLoaded', () => {
     //Modal
 
     const btn = document.querySelectorAll('[data-modal]'),
-          modal = document.querySelector('.modal'),
-          close = document.querySelector('[data-close]');
+          modal = document.querySelector('.modal');
 
     btn.forEach( btn => {
         btn.addEventListener('click', openModal);
@@ -130,10 +129,8 @@ window.addEventListener('DOMContentLoaded', () => {
         document.body.style.overflow = ''; //браузер сам подставит дефoлтное значение
     }
 
-    close.addEventListener('click', closeModal); //функцию не вызываем, пррсто передаем ссылку на функцию
-
     modal.addEventListener('click', (e) => {
-        if(e.target === modal) { //если пользлватель кликает на подложку (за пределы модального окна, то окно закрывается), то есть если клик пользователя равно подложке modal, то окно скроется
+        if(e.target === modal || e.target.getAttribute('data-close') == '') { //если пользлватель кликает на подложку (за пределы модального окна, то окно закрывается), то есть если клик пользователя равно подложке modal, то окно скроется
             closeModal();
         }
     });
@@ -144,7 +141,7 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // const modalTimerId = setTimeout(openModal, 5000); //открывается модальное окно через 5 секунд перебывания пользователя на сайте */
+    const modalTimerId = setTimeout(openModal, 50000); //открывается модальное окно через 5 секунд перебывания пользователя на сайте 
 
     function showModalByScroll() { //функционал, который открывает модальное окно в случае прокрутки сайта до конца страницы 
         if (window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight - 1) { //если прокрученная часть + видимая часть на экране юзера = высоте всей прокрутки (смотреть таблицу в тетради) 
@@ -237,7 +234,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const forms = document.querySelectorAll('form');
 
     const message = {
-        loading : 'Загрузка...',
+        loading : 'img/form/spinner.svg',
         success: 'Спасибо! Скоро мы с вами свяжемся',
         failure: 'Что-то пошло не так...'
     };
@@ -250,10 +247,14 @@ window.addEventListener('DOMContentLoaded', () => {
         form.addEventListener ('submit', (e) => {
             e.preventDefault(); //эта окманда используется первой в аджакс запросах
 
-            const statusMessage = document.createElement('div');
-            statusMessage.classList.add('status');
-            statusMessage.textContent = message.loading;
-            form.append(statusMessage);
+            const statusMessage = document.createElement('img');
+            statusMessage.src = message.loading;
+            //инлайн стили
+            statusMessage.style.cssText = `
+                display: block;
+                margin: 0 auto;
+            `;
+            form.insertAdjacentElement('afterend', statusMessage);
 
             const request = new XMLHttpRequest();
             request.open('POST', 'server.php'); //настроили запрос (он будет постить на сервер инфу и работат на фоне пхп файла)
@@ -274,15 +275,39 @@ window.addEventListener('DOMContentLoaded', () => {
                 //навешиваем лоад для отслеживания загрузки данных на сервер
                 if(request.status === 200) {
                     console.log(request.response);
-                    statusMessage.textContent = message.success;
+                    showThanksModal(message.success);
                     form.reset(); //очистили форму
-                    setTimeout(() => {
-                        statusMessage.remove();
-                    }, 2000)
+                    statusMessage.remove();
                 } else {
-                    statusMessage.textContent = message.failure;
+                    showThanksModal(message.failure);
                 }
             })
         })
     }
+
+    function showThanksModal(message) {
+        const prevModalDialog = document.querySelector('.modal__dialog');
+
+        prevModalDialog.classList.add('hide');
+        openModal();
+
+        const thanksModal = document.createElement('div');
+        thanksModal.classList.add('modal__dialog');
+        thanksModal.innerHTML = `
+            <div class = "modal__content">
+                <div class = "modal__close" data-close>×</div>
+                <div class = "modal__title">${message}</div>
+            </div>
+        `;
+
+        document.querySelector('.modal').append(thanksModal); //отображаем на странице модальное окно благодарности
+        //через 4 секунды удаляем модальное окно благодарности, чтобы пользователь мог повторно отправить форму
+        setTimeout(() => {
+            thanksModal.remove();
+            prevModalDialog.classList.add('show');
+            prevModalDialog.classList.remove('hide');
+            closeModal();
+        }, 4000);
+    }
+
 });
