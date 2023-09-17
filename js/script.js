@@ -256,10 +256,6 @@ window.addEventListener('DOMContentLoaded', () => {
             `;
             form.insertAdjacentElement('afterend', statusMessage);
 
-            const request = new XMLHttpRequest();
-            request.open('POST', 'server.php'); //настроили запрос (он будет постить на сервер инфу и работат на фоне пхп файла)
-
-            request.setRequestHeader('Content-type', 'application/json');//заголовок запроса
             const formData = new FormData(form); //взяли данные из HTML-формы и отправить их с помощью fetch или другого метода для работы с сетью.
 
             const object = {}; //FormData специфический объект поэтому надо сделать его обычным с помощью перебора значений 
@@ -267,22 +263,24 @@ window.addEventListener('DOMContentLoaded', () => {
                 object[key] = value;
             });
 
-            const json = JSON.stringify(object);//превращаем обычный объект в json
-
-            request.send(json);//отправили данные
-
-            request.addEventListener('load', () => {
-                //навешиваем лоад для отслеживания загрузки данных на сервер
-                if(request.status === 200) {
-                    console.log(request.response);
-                    showThanksModal(message.success);
-                    form.reset(); //очистили форму
-                    statusMessage.remove();
-                } else {
-                    showThanksModal(message.failure);
-                }
+            fetch('server.php', {
+                method: "POST",
+                headers: {
+                    'Content-type': 'application/json' //заголовок запроса
+                }, 
+                body: JSON.stringify(object) //превращаем обычный объект в json 
             })
-        })
+            .then(data => data.text())
+            .then (data => {
+                console.log(data);
+                showThanksModal(message.success);
+                statusMessage.remove();
+            }).catch (() => {
+                showThanksModal(message.failure);
+            }).finally(() => {
+                form.reset(); //очистили форму
+            });
+        });
     }
 
     function showThanksModal(message) {
