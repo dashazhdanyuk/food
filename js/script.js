@@ -240,10 +240,23 @@ window.addEventListener('DOMContentLoaded', () => {
     };
 
     forms.forEach(item => {
-        postData(item);
+        bindPostData(item);
     });
 
-    function postData(form) {
+    const postData = async (url, data) => {
+        const res = await fetch(url, {
+            method: "POST",
+            headers: {
+                'Content-type': 'application/json' //заголовок запроса
+            }, 
+            body: data
+        });
+
+        return await res.json(); //возвращаем промис. сначала дожидаемся результата промиса,  а потом возвращаем его (return)
+        // так как это асинхронный код, сначала будет выполняться fetch, а потом результат присваиваться переменной res. если обещание еще не выполнилось, то в перменную присвоится undefined и будет ошибка. нам нужно сделать асинхронный код синхронным (async) - мы указали, что код в функции будет асинхронным, await мы ставим перед операциями, которые надо дождаться
+    };
+
+    function bindPostData(form) { //привязка постинга
         form.addEventListener ('submit', (e) => {
             e.preventDefault(); //эта окманда используется первой в аджакс запросах
 
@@ -258,19 +271,10 @@ window.addEventListener('DOMContentLoaded', () => {
 
             const formData = new FormData(form); //взяли данные из HTML-формы и отправить их с помощью fetch или другого метода для работы с сетью.
 
-            const object = {}; //FormData специфический объект поэтому надо сделать его обычным с помощью перебора значений 
-            formData.forEach(function(value, key){
-                object[key] = value;
-            });
+            const json = JSON.stringify(Object.fromEntries(formData.entries())); //FormData специфический объект поэтому надо сделать его обычным с помощью перебора значений 
+            //сначала formData превращаем в массив массивов (formData.entries()), потом превращаем ее в классический объект (Object.fromEntries()), после этого классический объект превращаем в json (JSON.stringify())
 
-            fetch('server.php', {
-                method: "POST",
-                headers: {
-                    'Content-type': 'application/json' //заголовок запроса
-                }, 
-                body: JSON.stringify(object) //превращаем обычный объект в json 
-            })
-            .then(data => data.text())
+            postData('http://localhost:3000/requests', json)
             .then (data => {
                 console.log(data);
                 showThanksModal(message.success);
@@ -311,6 +315,5 @@ window.addEventListener('DOMContentLoaded', () => {
     fetch('http://localhost:3000/menu')
         .then(data => data.json())
         .then(res => console.log(res));
-
 
 });
