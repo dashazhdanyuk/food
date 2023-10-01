@@ -385,11 +385,15 @@ window.addEventListener('DOMContentLoaded', () => {
         dots.push(dot);
     }
 
+    function deleteNotDigits(str) {
+        return +str.replace(/\D/g, '');
+    }
+
     next.addEventListener('click', () => {
-        if(offset == +width.slice(0, width.length - 2) * (slides.length - 1)){ //'500px' - пример переменной width, поэтому нужно обработать ее, чтобы это значениебыло число без px
+        if(offset == deleteNotDigits(width) * (slides.length - 1)){ //'500px' - пример переменной width, поэтому нужно обработать ее, чтобы это значение было число без px
             offset = 0; //если слайдер долистать до конца, то он возвращается на первый слайд
         } else {
-            offset += +width.slice(0, width.length - 2);
+            offset += deleteNotDigits(width);
         }
 
         slidesField.style.transform = `translateX(-${offset}px)`;
@@ -412,9 +416,9 @@ window.addEventListener('DOMContentLoaded', () => {
 
     prev.addEventListener('click', () => {
         if(offset == 0){ 
-            offset = +width.slice(0, width.length - 2) * (slides.length -1);
+            offset = deleteNotDigits(width) * (slides.length -1);
         } else {
-            offset -= +width.slice(0, width.length - 2);
+            offset -= deleteNotDigits(width);
         }
 
         slidesField.style.transform = `translateX(-${offset}px)`;
@@ -440,7 +444,7 @@ window.addEventListener('DOMContentLoaded', () => {
             const slideTo = e.target.getAttribute('data-slide-to');
 
             slideIndex =  slideTo; //устанавливаем в позицию слайдТу (кликнули на 4 точку, значит 4 слайд отобразился)
-            offset =  +width.slice(0, width.length - 2) * (slideTo -1);
+            offset =  deleteNotDigits(width) * (slideTo -1);
 
             slidesField.style.transform = `translateX(-${offset}px)`;
 
