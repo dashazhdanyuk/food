@@ -1,12 +1,16 @@
-    // используем синтаксис ESM
-    import tabs from './modules/tabs';
-    import modal from './modules/modal';
-    import timer from './modules/timer';
-    import cards from './modules/cards';
-    import calc from './modules/calc';
-    import slider from './modules/slider';
-    import forms from './modules/forms';
-    import { openModal } from './modules/modal';
+require('es6-promise').polyfill();
+import 'nodelist-foreach-polyfill';
+//это были импорты npm пакетов (определенные полифиллы)
+    
+// используем синтаксис ESM
+import tabs from './modules/tabs';
+import modal from './modules/modal';
+import timer from './modules/timer';
+import cards from './modules/cards';
+import calc from './modules/calc';
+import slider from './modules/slider';
+import forms from './modules/forms';
+import { openModal } from './modules/modal';
 
 window.addEventListener('DOMContentLoaded', () => {
     const modalTimerId = setTimeout(() => openModal('.modal', modalTimerId), 300000); //открывается модальное окно через 30 секунд перебывания пользователя на сайте 
